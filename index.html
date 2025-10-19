@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiered Grid Challenge Randomizer</title>
+    <title>Tiered GridMaster Randomizer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -164,7 +164,7 @@
     </style>
 </head>
 <body>
-    <h1>Tiered Challenge Randomizer</h1>
+    <h1>GridMaster Randomizer</h1>
     <div class="grid-container" id="challengeGrid">
         </div>
     
@@ -214,71 +214,66 @@
         ];
 
         // ==========================================================
-        // TILE DATA (REPLACE WITH YOUR 49 CHALLENGES AND IMAGE PATHS)
-        // IMPORTANT: The path must match the case of your folder (e.g., 'icons/' or 'Icons/')
+        // TILE DATA (YOUR FULL CHALLENGE LIST)
         // ==========================================================
         const tileData = [
-            // Row 1 (0-6)
-            { name: "Defeat the Doom of Mokhaiotl at Depth 8", image: "icons/1.png" },
-            { name: "Defeat Sol Heredith", image: "icons/2.png" },
-            { name: "Fully decorate Magic Totem", image: "icons/3.png" },
-            { name: "Kill an Ogress", image: "icons/4.png" },
-            { name: "Defeat Jal-Zek", image: "icons/5.png" },
-            { name: "Obtain a rare drop from Yama", image: "icons/6.png" },
-            { name: "Obtain a rare drop from Xeric", image: "icons/7.png" },
-            // ... (rest of your 49 tiles) ...
-            { name: "Reach 2000 total level", image: "icons/8.png" },
-            { name: "Open the Lunar Chest", image: "icons/9.png" },
-            { name: "Obtain a rare drop from the Hueycoatl", image: "icons/10.png" },
-            { name: "Reach 500 total level", image: "icons/11.png" },
-            { name: "Cook a shark while wearing a Cheft's hat", image: "icons/12.png" },
-            { name: "Defeat Zulrah with a blowpipe", image: "icons/13.png" },
-            { name: "Complete Inferno in 30 minutes or less", image: "icons/14.png" },
-            { name: "Obtain some valuables from a house in Varlamore", image: "icons/15.png" },
-            { name: "Obtain a rare drop from Barrows, while wearing rare Barrows equipment", image: "icons/16.png" },
-            { name: "Drink a Steamforge brew at Stick Your Ore Inn", image: "icons/17.png" },
-            { name: "Chop Maple Logs", image: "icons/18.png" },
-            { name: "Defeat Scurrius", image: "icons/19.png" },
-            { name: "Kill a Lizard Shaman", image: "icons/20.png" },
-            { name: "Complete the Corruptet Gauntlet", image: "icons/21.png" },
-            { name: "Gain over 30,000 coins from one Alchemy Spell", image: "icons/22.png" },
-            { name: "Steal from a fruit stall", image: "icons/23.png" },
-            { name: "Throw a gnomeball", image: "icons/24.png" },
-            { name: "Complete the gridmaster tutorial", image: "icons/25.png" },
-            { name: "Equip any boots from the Stronghold of Security", image: "icons/26.png" },
-            { name: "Complete Vampyre Slayer", image: "icons/27.png" },
-            { name: "Clean 3 grimy herbs", image: "icons/28.png" },
-            { name: "Obtain a rare drop from Vorkath", image: "icons/29.png" },
-            { name: "Catch a Moth barehanded", image: "icons/30.png" },
-            { name: "Subdue Tempoross", image: "icons/31.png" },
-            { name: "Mine Gold Ore", image: "icons/32.png" },
-            { name: "Witness the Gemstone Crab burrow away", image: "icons/33.png" },
-            { name: "Make a Zamorak brew while wearing Zamorak Monk Robe", image: "icons/34.png" },
-            { name: "Defeat TzTok-Jad", image: "icons/35.png" },
-            { name: "Defeat all 4 Awakened bosses", image: "icons/36.png" },
-            { name: "Defeat Kalphite Queen", image: "icons/37.png" },
-            { name: "Equip a unique item from the God Wars Dungeon", image: "icons/38.png" },
-            { name: "Open Bryopytha's Chest", image: "icons/39.png" },
-            { name: "Check a grown Fruit Tree", image: "icons/40.png" },
-            { name: "Equip an Amulet of Fury", image: "icons/41.png" },
-            { name: "Complete Floor 5 of The Hallowed Sephulchre", image: "icons/42.png" },
-            { name: "Obtain a Rare drop from Tombs of Amascut", image: "icons/43.png" },
-            { name: "Build a Demonic Throne in your POH", image: "icons/44.png" },
-            { name: "Deposit a Skillcape to your POH", image: "icons/45.png" },
-            { name: "Defeat a Lesser Demon in Wizard's Tower", image: "icons/46.png" },
-            { name: "Reach 1500 total level", image: "icons/47.png" },
-            { name: "Obtain a rare drop from Araxxor", image: "icons/48.png" },
-            { name: "Obtain a rare drop from Theatre of Blood", image: "icons/49.png" }
+            { name: "Defeat the Doom of Mokhaiotl at Depth 8", image: "icons/1.png" }, // 0
+            { name: "Defeat Sol Heredith", image: "icons/2.png" }, // 1
+            { name: "Fully decorate Magic Totem", image: "icons/3.png" }, // 2
+            { name: "Kill an Ogress", image: "icons/4.png" }, // 3
+            { name: "Defeat Jal-Zek", image: "icons/5.png" }, // 4
+            { name: "Obtain a rare drop from Yama", image: "icons/6.png" }, // 5
+            { name: "Obtain a rare drop from Xeric", image: "icons/7.png" }, // 6
+            { name: "Reach 2000 total level", image: "icons/8.png" }, // 7
+            { name: "Open the Lunar Chest", image: "icons/9.png" }, // 8
+            { name: "Obtain a rare drop from the Hueycoatl", image: "icons/10.png" }, // 9
+            { name: "Reach 500 total level", image: "icons/11.png" }, // 10
+            { name: "Cook a shark while wearing a Cheft's hat", image: "icons/12.png" }, // 11
+            { name: "Defeat Zulrah with a blowpipe", image: "icons/13.png" }, // 12
+            { name: "Complete Inferno in 30 minutes or less", image: "icons/14.png" }, // 13
+            { name: "Obtain some valuables from a house in Varlamore", image: "icons/15.png" }, // 14
+            { name: "Obtain a rare drop from Barrows, while wearing rare Barrows equipment", image: "icons/16.png" }, // 15
+            { name: "Drink a Steamforge brew at Stick Your Ore Inn", image: "icons/17.png" }, // 16
+            { name: "Chop Maple Logs", image: "icons/18.png" }, // 17
+            { name: "Defeat Scurrius", image: "icons/19.png" }, // 18
+            { name: "Kill a Lizard Shaman", image: "icons/20.png" }, // 19
+            { name: "Complete the Corruptet Gauntlet", image: "icons/21.png" }, // 20
+            { name: "Gain over 30,000 coins from one Alchemy Spell", image: "icons/22.png" }, // 21
+            { name: "Steal from a fruit stall", image: "icons/23.png" }, // 22
+            { name: "Throw a gnomeball", image: "icons/24.png" }, // 23
+            { name: "Complete the gridmaster tutorial", image: "icons/25.png" }, // 24 (CENTER TILE)
+            { name: "Equip any boots from the Stronghold of Security", image: "icons/26.png" }, // 25
+            { name: "Complete Vampyre Slayer", image: "icons/27.png" }, // 26
+            { name: "Clean 3 grimy herbs", image: "icons/28.png" }, // 27
+            { name: "Obtain a rare drop from Vorkath", image: "icons/29.png" }, // 28
+            { name: "Catch a Moth barehanded", image: "icons/30.png" }, // 29
+            { name: "Subdue Tempoross", image: "icons/31.png" }, // 30
+            { name: "Mine Gold Ore", image: "icons/32.png" }, // 31
+            { name: "Witness the Gemstone Crab burrow away", image: "icons/33.png" }, // 32
+            { name: "Make a Zamorak brew while wearing Zamorak Monk Robe", image: "icons/34.png" }, // 33
+            { name: "Defeat TzTok-Jad", image: "icons/35.png" }, // 34
+            { name: "Defeat all 4 Awakened bosses", image: "icons/36.png" }, // 35
+            { name: "Defeat Kalphite Queen", image: "icons/37.png" }, // 36
+            { name: "Equip a unique item from the God Wars Dungeon", image: "icons/38.png" }, // 37
+            { name: "Open Bryopytha's Chest", image: "icons/39.png" }, // 38
+            { name: "Check a grown Fruit Tree", image: "icons/40.png" }, // 39
+            { name: "Equip an Amulet of Fury", image: "icons/41.png" }, // 40
+            { name: "Complete Floor 5 of The Hallowed Sephulchre", image: "icons/42.png" }, // 41
+            { name: "Obtain a Rare drop from Tombs of Amascut", image: "icons/43.png" }, // 42
+            { name: "Build a Demonic Throne in your POH", image: "icons/44.png" }, // 43
+            { name: "Deposit a Skillcape to your POH", image: "icons/45.png" }, // 44
+            { name: "Defeat a Lesser Demon in Wizard's Tower", image: "icons/46.png" }, // 45
+            { name: "Reach 1500 total level", image: "icons/47.png" }, // 46
+            { name: "Obtain a rare drop from Araxxor", image: "icons/48.png" }, // 47
+            { name: "Obtain a rare drop from Theatre of Blood", image: "icons/49.png" }  // 48
         ];
 
 
-        let availableTiles = []; // The current active tier's tile pool
         let finishedTiles = new Set();
         let currentTileIndex = -1;
         let isRandomizing = false;
         let runIsValid = true; 
-        let activeTierIndex = 0; // Starts at Green Tier (index 0)
-
+        let activeTierIndex = 0; 
 
         // Helper function to get the current active tier's array
         function getCurrentTierTiles() {
@@ -286,45 +281,111 @@
         }
 
         // ==========================================================
-        // initializeGrid (Resets Tiers and Builds UI)
+        // LOCAL STORAGE FUNCTIONS
         // ==========================================================
-        function initializeGrid() {
-            gridContainer.innerHTML = ''; 
-            finishedTiles.clear();
-            currentTileIndex = -1;
-            isRandomizing = false;
-            runIsValid = true; 
-            activeTierIndex = 0; // Reset to Green Tier
+        function saveGameState() {
+            const gameState = {
+                finishedTiles: Array.from(finishedTiles),
+                currentTileIndex: currentTileIndex,
+                runIsValid: runIsValid,
+                activeTierIndex: activeTierIndex,
+                tierStates: TIER_ORDER.map(tier => tier.tilesRemaining)
+            };
+            localStorage.setItem('gridChallengeState', JSON.stringify(gameState));
+        }
 
-            messageDisplay.textContent = 'Click the button to start your first challenge!';
-            invalidRunMessage.textContent = ''; 
-            
-            randomizeButton.disabled = false;
-            rerollButton.style.display = 'none';
-            rerollButton.disabled = true;
+        function loadGameState() {
+            const savedState = localStorage.getItem('gridChallengeState');
+            if (!savedState) return false;
 
-            // 1. Reset tile tiers and setup initial available tiles
-            TIER_ORDER.forEach(tier => {
-                // Copy the index list to the mutable 'tilesRemaining' array for the game
-                tier.tilesRemaining = [...tier.indices]; 
+            const gameState = JSON.parse(savedState);
+
+            finishedTiles = new Set(gameState.finishedTiles);
+            currentTileIndex = gameState.currentTileIndex;
+            runIsValid = gameState.runIsValid;
+            activeTierIndex = gameState.activeTierIndex;
+
+            gameState.tierStates.forEach((remaining, index) => {
+                TIER_ORDER[index].tilesRemaining = remaining;
             });
 
-            // The first active pool is the Green Tier
-            availableTiles = getCurrentTierTiles(); 
+            return true;
+        }
 
-            // 2. Create and append grid elements with color classes
+        // ==========================================================
+        // initializeGrid (Handles Reset and Loading)
+        // ==========================================================
+        function initializeGrid(isReset = false) {
+            
+            // --- LOAD/RESET LOGIC ---
+            if (isReset || !loadGameState()) {
+                // If resetting or no save found, initialize to default state
+                finishedTiles.clear();
+                currentTileIndex = -1;
+                runIsValid = true; 
+                activeTierIndex = 0; 
+                TIER_ORDER.forEach(tier => {
+                    tier.tilesRemaining = [...tier.indices]; 
+                });
+                localStorage.removeItem('gridChallengeState'); // Clear local storage on hard reset
+                saveGameState(); // Save the fresh starting state
+            }
+            
+            // --- UI Setup (Runs every time, whether loading or fresh) ---
+            gridContainer.innerHTML = ''; 
+            isRandomizing = false;
+            
+            const currentPool = getCurrentTierTiles();
+
+            // Set messages/buttons based on the current state
+            if (runIsValid === false) {
+                invalidRunMessage.textContent = 'This run is now invalid!';
+            } else {
+                invalidRunMessage.textContent = '';
+            }
+            
+            if (finishedTiles.size === totalTiles) {
+                messageDisplay.textContent = 'Congratulations! All challenges completed!';
+                randomizeButton.disabled = true;
+                rerollButton.style.display = 'none';
+            } else if (currentTileIndex !== -1) {
+                 const chosenTileData = tileData[currentTileIndex];
+                 messageDisplay.textContent = `(${TIER_ORDER[activeTierIndex].name}) Your current challenge is: ${chosenTileData.name}! Click it when finished.`;
+                 randomizeButton.disabled = true;
+                 rerollButton.style.display = 'inline-block';
+                 rerollButton.disabled = false;
+            } else if (currentPool.length === 0 && (activeTierIndex + 1) < TIER_ORDER.length) {
+                 messageDisplay.textContent = `Completed all challenges in the ${TIER_ORDER[activeTierIndex].name}! Click "Find Next Challenge!" to begin the ${TIER_ORDER[activeTierIndex + 1].name}.`;
+                 randomizeButton.disabled = false;
+                 rerollButton.style.display = 'none';
+            } else {
+                messageDisplay.textContent = 'Click the button to start your first challenge!';
+                randomizeButton.disabled = false;
+                rerollButton.style.display = 'none';
+            }
+
+            // Build the grid
             tileData.forEach((data, index) => {
                 const gridItem = document.createElement('div');
                 gridItem.classList.add('grid-item');
                 gridItem.dataset.index = index; 
 
-                // Add the color class for visual reference
+                // Add tier color classes
                 if (GREEN_TIER_INDICES.includes(index)) {
                     gridItem.classList.add('green-tier');
                 } else if (YELLOW_TIER_INDICES.includes(index)) {
                     gridItem.classList.add('yellow-tier');
                 } else if (RED_TIER_INDICES.includes(index)) {
                     gridItem.classList.add('red-tier');
+                }
+
+                // Apply finished state from loaded data
+                if (finishedTiles.has(index)) {
+                    gridItem.classList.add('finished');
+                }
+                // Apply current state from loaded data
+                if (index === currentTileIndex) {
+                     gridItem.classList.add('current');
                 }
 
                 const icon = document.createElement('img');
@@ -337,7 +398,7 @@
         }
 
         // ==========================================================
-        // performSpinAnimation (Lootbox visual effect)
+        // performSpinAnimation
         // ==========================================================
         async function performSpinAnimation() {
             const animationDuration = 3000;
@@ -347,7 +408,6 @@
             const currentPool = getCurrentTierTiles();
 
             for (let i = 0; i < rollCount; i++) {
-                // Pick a random tile from the current active tier pool just for the animation
                 const tempRandomIndex = currentPool[Math.floor(Math.random() * currentPool.length)];
                 const tempTileElement = gridContainer.children[tempRandomIndex];
 
@@ -363,13 +423,12 @@
         }
 
         // ==========================================================
-        // randomizeTile (Implements tier progression and forced center)
+        // randomizeTile
         // ==========================================================
         async function randomizeTile() {
             if (isRandomizing) return;
 
-            // --- TIER CHECK LOGIC ---
-            // If the current tier is empty, advance to the next tier
+            // Tier progression check
             if (getCurrentTierTiles().length === 0) {
                 activeTierIndex++;
                 if (activeTierIndex >= TIER_ORDER.length) {
@@ -377,11 +436,8 @@
                     randomizeButton.disabled = true;
                     return;
                 }
-                // Update the availableTiles pool to the next tier's array
-                availableTiles = getCurrentTierTiles(); 
                 messageDisplay.textContent = `Starting ${TIER_ORDER[activeTierIndex].name}! Finding first challenge...`;
             }
-            // --- END TIER CHECK LOGIC ---
             
             isRandomizing = true;
             randomizeButton.disabled = true;
@@ -397,21 +453,17 @@
             let chosenTileGridIndex;
             const currentPool = getCurrentTierTiles();
 
-            // 1. Determine the selected tile
-            // Center tile logic: Only trigger on the very first pick of the game (Green Tier, full pool)
+            // Forced Center Tile (Tile 24) logic
             if (activeTierIndex === 0 && currentPool.length === GREEN_TIER_INDICES.length) {
-                chosenTileGridIndex = 24; // Force the center tile (index 24)
+                chosenTileGridIndex = 24; 
             } else {
-                // Normal random selection from the current tier pool
                 const randomIndexInAvailable = Math.floor(Math.random() * currentPool.length);
                 chosenTileGridIndex = currentPool[randomIndexInAvailable];
             }
 
-            // 2. Remove the chosen tile from the current tier pool
             const indexInCurrentPool = currentPool.indexOf(chosenTileGridIndex);
             currentTileIndex = currentPool.splice(indexInCurrentPool, 1)[0]; 
 
-            // 3. Update UI
             const finalChosenElement = gridContainer.children[currentTileIndex];
             if (lastAnimatedTile) {
                  lastAnimatedTile.classList.remove('highlight-spin');
@@ -424,16 +476,18 @@
             isRandomizing = false;
             rerollButton.style.display = 'inline-block';
             rerollButton.disabled = false;
+            
+            // SAVE STATE AFTER SELECTION
+            saveGameState(); 
         }
 
         // ==========================================================
-        // rerollTile (Rerolls within the current active tier)
+        // rerollTile
         // ==========================================================
         async function rerollTile() {
             const currentPool = getCurrentTierTiles();
             if (isRandomizing || currentTileIndex === -1 || currentPool.length === 0) return;
 
-            // 1. Set invalid state
             if (runIsValid) {
                 runIsValid = false;
                 invalidRunMessage.textContent = 'This run is now invalid!';
@@ -443,18 +497,14 @@
             rerollButton.disabled = true;
             messageDisplay.textContent = 'Rerolling challenge...';
 
-            // 2. Return current tile to the CURRENT TIER pool
             gridContainer.children[currentTileIndex].classList.remove('current');
             currentPool.push(currentTileIndex);
 
-            // 3. Run animation
             const lastAnimatedTile = await performSpinAnimation();
 
-            // 4. Get new tile from the current tier pool
             const randomIndexInAvailable = Math.floor(Math.random() * currentPool.length);
             currentTileIndex = currentPool.splice(randomIndexInAvailable, 1)[0]; 
 
-            // 5. Update UI
             const finalChosenElement = gridContainer.children[currentTileIndex];
             if (lastAnimatedTile) {
                  lastAnimatedTile.classList.remove('highlight-spin');
@@ -466,11 +516,14 @@
 
             isRandomizing = false;
             rerollButton.disabled = false;
+            
+            // SAVE STATE AFTER REROLL
+            saveGameState();
         }
 
 
         // ==========================================================
-        // Click listener (Handles finishing tiles)
+        // Click listener
         // ==========================================================
         gridContainer.addEventListener('click', (event) => {
             const clickedItem = event.target.closest('.grid-item');
@@ -491,14 +544,17 @@
                     messageDisplay.textContent = 'Congratulations! All challenges completed!';
                     randomizeButton.disabled = true;
                 } else {
-                    // Check if the current tier is now complete
-                    if (getCurrentTierTiles().length === 0 && (activeTierIndex + 1) < TIER_ORDER.length) {
+                    const currentPool = getCurrentTierTiles();
+                    if (currentPool.length === 0 && (activeTierIndex + 1) < TIER_ORDER.length) {
                         messageDisplay.textContent = `Completed all challenges in the ${TIER_ORDER[activeTierIndex].name}! Click "Find Next Challenge!" to begin the ${TIER_ORDER[activeTierIndex + 1].name}.`;
                     } else {
                         messageDisplay.textContent = `Challenge "${clickedTileData.name}" completed! Find your next one.`;
                     }
                     randomizeButton.disabled = false;
                 }
+                // SAVE STATE AFTER COMPLETING TILE
+                saveGameState(); 
+
             } else if (finishedTiles.has(clickedIndex)) {
                 messageDisplay.textContent = `"${clickedTileData.name}" is already finished!`;
             } else if (currentTileIndex !== -1) {
@@ -511,9 +567,10 @@
 
         randomizeButton.addEventListener('click', randomizeTile);
         rerollButton.addEventListener('click', rerollTile);
-        resetButton.addEventListener('click', initializeGrid);
+        // Reset button now calls initializeGrid(true) to force a hard reset
+        resetButton.addEventListener('click', () => initializeGrid(true)); 
 
-        // Initial setup
+        // Initial setup: Loads state if available
         initializeGrid();
     </script>
 </body>
