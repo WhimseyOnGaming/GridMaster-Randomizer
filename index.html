@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid Challenge Randomizer</title>
+    <title>Tiered Grid Challenge Randomizer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,6 +43,13 @@
             background-color: #777;
             transform: scale(1.05);
         }
+
+        /* TIER COLORS FOR VISUAL AID */
+        .grid-item.green-tier { background-color: #4CAF50; border-color: #388E3C; } /* Darker Green */
+        .grid-item.yellow-tier { background-color: #FFC107; border-color: #FFA000; } /* Darker Yellow */
+        .grid-item.red-tier { background-color: #F44336; border-color: #D32F2F; } /* Darker Red */
+
+
         .grid-item img {
             width: 90%;
             height: 90%;
@@ -87,12 +94,11 @@
             100% { transform: scale(1) rotate(360deg); opacity: 1; }
         }
 
-        /* NEW: Button container for layout */
         .button-container {
             margin-top: 20px;
             display: flex;
             gap: 15px;
-            flex-wrap: wrap; /* Allows buttons to stack on small screens */
+            flex-wrap: wrap;
             justify-content: center;
         }
         
@@ -116,27 +122,24 @@
             box-shadow: none;
         }
 
-        /* Specific button styles */
         #randomizeButton {
-            background-color: #ffc107; /* Yellow */
+            background-color: #ffc107;
         }
         #randomizeButton:hover:not(:disabled) {
             background-color: #e0a800;
         }
         
-        /* NEW: Reroll Button */
         #rerollButton {
-            background-color: #fd7e14; /* Orange */
+            background-color: #fd7e14;
             color: white;
-            display: none; /* Hidden by default */
+            display: none;
         }
         #rerollButton:hover:not(:disabled) {
             background-color: #e66a00;
         }
         
-        /* NEW: Reset Button */
         #resetButton {
-            background-color: #dc3545; /* Red */
+            background-color: #dc3545;
             color: white;
         }
         #resetButton:hover:not(:disabled) {
@@ -151,18 +154,17 @@
             text-align: center;
         }
 
-        /* NEW: Invalid Run Message */
         #invalidRunMessage {
             margin-top: 10px;
             font-size: 1.1em;
-            color: #dc3545; /* Red */
+            color: #dc3545;
             font-weight: bold;
-            height: 1.2em; /* Reserve space so layout doesn't jump */
+            height: 1.2em;
         }
     </style>
 </head>
 <body>
-    <h1>Challenge Grid Randomizer</h1>
+    <h1>Tiered Challenge Randomizer</h1>
     <div class="grid-container" id="challengeGrid">
         </div>
     
@@ -173,23 +175,50 @@
     </div>
 
     <div id="message"></div>
-    <div id="invalidRunMessage"></div> <script>
+    <div id="invalidRunMessage"></div>
+
+    <script>
         const gridSize = 7;
         const totalTiles = gridSize * gridSize;
         const gridContainer = document.getElementById('challengeGrid');
         const randomizeButton = document.getElementById('randomizeButton');
         const messageDisplay = document.getElementById('message');
 
-        // NEW: Add new elements
         const rerollButton = document.getElementById('rerollButton');
         const resetButton = document.getElementById('resetButton');
         const invalidRunMessage = document.getElementById('invalidRunMessage');
 
         // ==========================================================
-        // TILE DATA (Fill this out)
+        // TIER DEFINITIONS (Converted from 1-49 to 0-48 indices)
+        // ==========================================================
+        
+        // Tiles 4,11,17,18,19,22,23,24,25,26,27,28,31,32,33,39,46
+        const GREEN_TIER_INDICES = [
+            3, 10, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 38, 45
+        ]; // 17 tiles
+
+        // Tiles 3,5,9,10,12,13,15,16,20,21,29,30,34,35,37,38,40,41,45,47
+        const YELLOW_TIER_INDICES = [
+            2, 4, 8, 9, 11, 12, 14, 15, 19, 20, 28, 29, 33, 34, 36, 37, 39, 40, 44, 46
+        ]; // 20 tiles
+
+        // Tiles 1,2,6,7,8,14,36,42,43,44,48,49
+        const RED_TIER_INDICES = [
+            0, 1, 5, 6, 7, 13, 35, 41, 42, 43, 47, 48
+        ]; // 12 tiles
+
+        const TIER_ORDER = [
+            { name: "Green Tier", indices: GREEN_TIER_INDICES, tilesRemaining: [] },
+            { name: "Yellow Tier", indices: YELLOW_TIER_INDICES, tilesRemaining: [] },
+            { name: "Red Tier", indices: RED_TIER_INDICES, tilesRemaining: [] }
+        ];
+
+        // ==========================================================
+        // TILE DATA (REPLACE WITH YOUR 49 CHALLENGES AND IMAGE PATHS)
+        // IMPORTANT: The path must match the case of your folder (e.g., 'icons/' or 'Icons/')
         // ==========================================================
         const tileData = [
-            // Example Row 1
+            // Row 1 (0-6)
             { name: "Defeat the Doom of Mokhaiotl at Depth 8", image: "icons/1.png" },
             { name: "Defeat Sol Heredith", image: "icons/2.png" },
             { name: "Fully decorate Magic Totem", image: "icons/3.png" },
@@ -242,34 +271,61 @@
             { name: "Obtain a rare drop from Theatre of Blood", image: "icons/49.png" }
         ];
 
-        let availableTiles = [];
+
+        let availableTiles = []; // The current active tier's tile pool
         let finishedTiles = new Set();
         let currentTileIndex = -1;
         let isRandomizing = false;
-        let runIsValid = true; // NEW: State for run validity
+        let runIsValid = true; 
+        let activeTierIndex = 0; // Starts at Green Tier (index 0)
+
+
+        // Helper function to get the current active tier's array
+        function getCurrentTierTiles() {
+            return TIER_ORDER[activeTierIndex].tilesRemaining;
+        }
 
         // ==========================================================
-        // UPDATED: initializeGrid (This is now our Reset function)
+        // initializeGrid (Resets Tiers and Builds UI)
         // ==========================================================
         function initializeGrid() {
             gridContainer.innerHTML = ''; 
-            availableTiles = Array.from({ length: totalTiles }, (_, i) => i);
             finishedTiles.clear();
             currentTileIndex = -1;
             isRandomizing = false;
-            runIsValid = true; // Reset validity
+            runIsValid = true; 
+            activeTierIndex = 0; // Reset to Green Tier
 
             messageDisplay.textContent = 'Click the button to start your first challenge!';
-            invalidRunMessage.textContent = ''; // Clear invalid message
+            invalidRunMessage.textContent = ''; 
             
             randomizeButton.disabled = false;
-            rerollButton.style.display = 'none'; // Hide reroll button
-            rerollButton.disabled = true; // Disable it just in case
+            rerollButton.style.display = 'none';
+            rerollButton.disabled = true;
 
+            // 1. Reset tile tiers and setup initial available tiles
+            TIER_ORDER.forEach(tier => {
+                // Copy the index list to the mutable 'tilesRemaining' array for the game
+                tier.tilesRemaining = [...tier.indices]; 
+            });
+
+            // The first active pool is the Green Tier
+            availableTiles = getCurrentTierTiles(); 
+
+            // 2. Create and append grid elements with color classes
             tileData.forEach((data, index) => {
                 const gridItem = document.createElement('div');
                 gridItem.classList.add('grid-item');
                 gridItem.dataset.index = index; 
+
+                // Add the color class for visual reference
+                if (GREEN_TIER_INDICES.includes(index)) {
+                    gridItem.classList.add('green-tier');
+                } else if (YELLOW_TIER_INDICES.includes(index)) {
+                    gridItem.classList.add('yellow-tier');
+                } else if (RED_TIER_INDICES.includes(index)) {
+                    gridItem.classList.add('red-tier');
+                }
 
                 const icon = document.createElement('img');
                 icon.src = data.image; 
@@ -281,17 +337,18 @@
         }
 
         // ==========================================================
-        // NEW: Refactored spin animation
+        // performSpinAnimation (Lootbox visual effect)
         // ==========================================================
         async function performSpinAnimation() {
             const animationDuration = 3000;
             const rollCount = 20;
             const delayBetweenSpins = animationDuration / rollCount;
             let lastHighlightedTile = null;
+            const currentPool = getCurrentTierTiles();
 
             for (let i = 0; i < rollCount; i++) {
-                // Pick a random available tile just for the animation
-                const tempRandomIndex = availableTiles[Math.floor(Math.random() * availableTiles.length)];
+                // Pick a random tile from the current active tier pool just for the animation
+                const tempRandomIndex = currentPool[Math.floor(Math.random() * currentPool.length)];
                 const tempTileElement = gridContainer.children[tempRandomIndex];
 
                 if (lastHighlightedTile && lastHighlightedTile !== tempTileElement) {
@@ -302,47 +359,59 @@
 
                 await new Promise(resolve => setTimeout(resolve, delayBetweenSpins));
             }
-            // Return the last tile to remove its highlight
             return lastHighlightedTile;
         }
 
         // ==========================================================
-        // UPDATED: randomizeTile (for the main button)
+        // randomizeTile (Implements tier progression and forced center)
         // ==========================================================
         async function randomizeTile() {
-            if (isRandomizing || availableTiles.length === 0) return;
+            if (isRandomizing) return;
 
+            // --- TIER CHECK LOGIC ---
+            // If the current tier is empty, advance to the next tier
+            if (getCurrentTierTiles().length === 0) {
+                activeTierIndex++;
+                if (activeTierIndex >= TIER_ORDER.length) {
+                    messageDisplay.textContent = 'All challenges completed in all tiers!';
+                    randomizeButton.disabled = true;
+                    return;
+                }
+                // Update the availableTiles pool to the next tier's array
+                availableTiles = getCurrentTierTiles(); 
+                messageDisplay.textContent = `Starting ${TIER_ORDER[activeTierIndex].name}! Finding first challenge...`;
+            }
+            // --- END TIER CHECK LOGIC ---
+            
             isRandomizing = true;
             randomizeButton.disabled = true;
-            rerollButton.disabled = true; // Disable reroll during spin
+            rerollButton.disabled = true;
             messageDisplay.textContent = 'Choosing your next challenge...';
 
             if (currentTileIndex !== -1) {
                 gridContainer.children[currentTileIndex].classList.remove('current');
             }
             
-            // Run the animation
             const lastAnimatedTile = await performSpinAnimation();
-
-            // Final selection
+            
             let chosenTileGridIndex;
+            const currentPool = getCurrentTierTiles();
 
-            // NEW: Check if this is the first pick
-            if (availableTiles.length === totalTiles) {
+            // 1. Determine the selected tile
+            // Center tile logic: Only trigger on the very first pick of the game (Green Tier, full pool)
+            if (activeTierIndex === 0 && currentPool.length === GREEN_TIER_INDICES.length) {
                 chosenTileGridIndex = 24; // Force the center tile (index 24)
             } else {
-                // Normal random selection for subsequent picks
-                const randomIndexInAvailable = Math.floor(Math.random() * availableTiles.length);
-                chosenTileGridIndex = availableTiles[randomIndexInAvailable];
+                // Normal random selection from the current tier pool
+                const randomIndexInAvailable = Math.floor(Math.random() * currentPool.length);
+                chosenTileGridIndex = currentPool[randomIndexInAvailable];
             }
 
-            // Find the chosen tile in the available list and remove it
-            const indexInAvailable = availableTiles.indexOf(chosenTileGridIndex);
-            
-            // Note: We assume tile 24 is always available if totalTiles are available
-            currentTileIndex = availableTiles.splice(indexInAvailable, 1)[0]; 
+            // 2. Remove the chosen tile from the current tier pool
+            const indexInCurrentPool = currentPool.indexOf(chosenTileGridIndex);
+            currentTileIndex = currentPool.splice(indexInCurrentPool, 1)[0]; 
 
-            // Highlight the final tile
+            // 3. Update UI
             const finalChosenElement = gridContainer.children[currentTileIndex];
             if (lastAnimatedTile) {
                  lastAnimatedTile.classList.remove('highlight-spin');
@@ -350,18 +419,19 @@
             finalChosenElement.classList.add('current');
 
             const chosenTileData = tileData[currentTileIndex];
-            messageDisplay.textContent = `Your current challenge is: ${chosenTileData.name}! Click it when finished.`;
+            messageDisplay.textContent = `(${TIER_ORDER[activeTierIndex].name}) Your current challenge is: ${chosenTileData.name}! Click it when finished.`;
 
             isRandomizing = false;
-            rerollButton.style.display = 'inline-block'; // Show the reroll button
-            rerollButton.disabled = false; // Enable it
+            rerollButton.style.display = 'inline-block';
+            rerollButton.disabled = false;
         }
-        
+
         // ==========================================================
-        // NEW: rerollTile function
+        // rerollTile (Rerolls within the current active tier)
         // ==========================================================
         async function rerollTile() {
-            if (isRandomizing || currentTileIndex === -1 || availableTiles.length === 0) return;
+            const currentPool = getCurrentTierTiles();
+            if (isRandomizing || currentTileIndex === -1 || currentPool.length === 0) return;
 
             // 1. Set invalid state
             if (runIsValid) {
@@ -373,16 +443,16 @@
             rerollButton.disabled = true;
             messageDisplay.textContent = 'Rerolling challenge...';
 
-            // 2. Return current tile to the pool
+            // 2. Return current tile to the CURRENT TIER pool
             gridContainer.children[currentTileIndex].classList.remove('current');
-            availableTiles.push(currentTileIndex);
+            currentPool.push(currentTileIndex);
 
             // 3. Run animation
             const lastAnimatedTile = await performSpinAnimation();
 
-            // 4. Get new tile
-            const randomIndexInAvailable = Math.floor(Math.random() * availableTiles.length);
-            currentTileIndex = availableTiles.splice(randomIndexInAvailable, 1)[0]; // Get new index and remove it
+            // 4. Get new tile from the current tier pool
+            const randomIndexInAvailable = Math.floor(Math.random() * currentPool.length);
+            currentTileIndex = currentPool.splice(randomIndexInAvailable, 1)[0]; 
 
             // 5. Update UI
             const finalChosenElement = gridContainer.children[currentTileIndex];
@@ -392,15 +462,15 @@
             finalChosenElement.classList.add('current');
 
             const chosenTileData = tileData[currentTileIndex];
-            messageDisplay.textContent = `Your new challenge is: ${chosenTileData.name}! Click it when finished.`;
+            messageDisplay.textContent = `(${TIER_ORDER[activeTierIndex].name}) Your new challenge is: ${chosenTileData.name}! Click it when finished.`;
 
             isRandomizing = false;
-            rerollButton.disabled = false; // Re-enable reroll
+            rerollButton.disabled = false;
         }
 
 
         // ==========================================================
-        // UPDATED: Click listener
+        // Click listener (Handles finishing tiles)
         // ==========================================================
         gridContainer.addEventListener('click', (event) => {
             const clickedItem = event.target.closest('.grid-item');
@@ -410,20 +480,23 @@
             const clickedTileData = tileData[clickedIndex];
 
             if (clickedIndex === currentTileIndex && currentTileIndex !== -1) {
-                // User finished the current challenge
                 clickedItem.classList.remove('current');
                 clickedItem.classList.add('finished');
                 finishedTiles.add(clickedIndex);
                 currentTileIndex = -1;
 
-                // Hide reroll button, enable next challenge button
                 rerollButton.style.display = 'none';
 
-                if (availableTiles.length === 0) {
+                if (finishedTiles.size === totalTiles) {
                     messageDisplay.textContent = 'Congratulations! All challenges completed!';
                     randomizeButton.disabled = true;
                 } else {
-                    messageDisplay.textContent = `Challenge "${clickedTileData.name}" completed! Find your next one.`;
+                    // Check if the current tier is now complete
+                    if (getCurrentTierTiles().length === 0 && (activeTierIndex + 1) < TIER_ORDER.length) {
+                        messageDisplay.textContent = `Completed all challenges in the ${TIER_ORDER[activeTierIndex].name}! Click "Find Next Challenge!" to begin the ${TIER_ORDER[activeTierIndex + 1].name}.`;
+                    } else {
+                        messageDisplay.textContent = `Challenge "${clickedTileData.name}" completed! Find your next one.`;
+                    }
                     randomizeButton.disabled = false;
                 }
             } else if (finishedTiles.has(clickedIndex)) {
@@ -436,12 +509,9 @@
             }
         });
 
-        // ==========================================================
-        // NEW: Event Listeners for new buttons
-        // ==========================================================
         randomizeButton.addEventListener('click', randomizeTile);
         rerollButton.addEventListener('click', rerollTile);
-        resetButton.addEventListener('click', initializeGrid); // initializeGrid IS the reset function
+        resetButton.addEventListener('click', initializeGrid);
 
         // Initial setup
         initializeGrid();
