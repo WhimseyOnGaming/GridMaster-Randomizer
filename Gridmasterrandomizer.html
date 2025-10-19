@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Challenge Randomizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            grid-template-rows: repeat(7, 60px);
+            gap: 5px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .grid-item {
+            width: 60px;
+            height: 60px;
+            background-color: #555;
+            border: 2px solid #777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .grid-item:hover:not(.finished):not(.current) {
+            background-color: #777;
+            transform: scale(1.05);
+        }
+        .grid-item img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            image-rendering: pixelated; 
+            transition: opacity 0.3s ease;
+        }
+        .grid-item.finished {
+            background-color: #28a745;
+            border-color: #1e7e34;
+        }
+        .grid-item.finished img {
+            opacity: 0.3;
+        }
+        .grid-item.finished::after {
+            content: '✔';
+            position: absolute;
+            font-size: 3em;
+            color: white;
+            opacity: 0.7;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .grid-item.current {
+            background-color: #007bff;
+            border-color: #0056b3;
+            animation: pulse 1s infinite alternate;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+        }
+        .grid-item.highlight-spin {
+            animation: spinHighlight 0.5s ease-in-out forwards;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+        @keyframes spinHighlight {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+
+        /* NEW: Button container for layout */
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap; /* Allows buttons to stack on small screens */
+            justify-content: center;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Specific button styles */
+        #randomizeButton {
+            background-color: #ffc107; /* Yellow */
+        }
+        #randomizeButton:hover:not(:disabled) {
+            background-color: #e0a800;
+        }
+        
+        /* NEW: Reroll Button */
+        #rerollButton {
+            background-color: #fd7e14; /* Orange */
+            color: white;
+            display: none; /* Hidden by default */
+        }
+        #rerollButton:hover:not(:disabled) {
+            background-color: #e66a00;
+        }
+        
+        /* NEW: Reset Button */
+        #resetButton {
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+        #resetButton:hover:not(:disabled) {
+            background-color: #c82333;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #333;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* NEW: Invalid Run Message */
+        #invalidRunMessage {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #dc3545; /* Red */
+            font-weight: bold;
+            height: 1.2em; /* Reserve space so layout doesn't jump */
+        }
+    </style>
+</head>
+<body>
+    <h1>Challenge Grid Randomizer</h1>
+    <div class="grid-container" id="challengeGrid">
+        </div>
+    
+    <div class="button-container">
+        <button id="randomizeButton">Find Next Challenge!</button>
+        <button id="rerollButton">Reroll Challenge (Invalidates Run)</button>
+        <button id="resetButton">Reset Grid</button>
+    </div>
+
+    <div id="message"></div>
+    <div id="invalidRunMessage"></div> <script>
+        const gridSize = 7;
+        const totalTiles = gridSize * gridSize;
+        const gridContainer = document.getElementById('challengeGrid');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const messageDisplay = document.getElementById('message');
+
+        // NEW: Add new elements
+        const rerollButton = document.getElementById('rerollButton');
+        const resetButton = document.getElementById('resetButton');
+        const invalidRunMessage = document.getElementById('invalidRunMessage');
+
+        // ==========================================================
+        // TILE DATA (Fill this out)
+        // ==========================================================
+        const tileData = [
+            // Example Row 1
+            { name: "Defeat the Doom of Mokhaiotl at Depth 8", image: "icons/1.png" },
+            { name: "Defeat Sol Heredith", image: "icons/2.png" },
+            { name: "Fully decorate Magic Totem", image: "icons/3.png" },
+            { name: "Kill an Ogress", image: "icons/4.png" },
+            { name: "Defeat Jal-Zek", image: "icons/5.png" },
+            { name: "Obtain a rare drop from Yama", image: "icons/6.png" },
+            { name: "Obtain a rare drop from Xeric", image: "icons/7.png" },
+            // ... (rest of your 49 tiles) ...
+            { name: "Reach 2000 total level", image: "icons/8.png" },
+            { name: "Open the Lunar Chest", image: "icons/9.png" },
+            { name: "Obtain a rare drop from the Hueycoatl", image: "icons/10.png" },
+            { name: "Reach 500 total level", image: "icons/11.png" },
+            { name: "Cook a shark while wearing a Cheft's hat", image: "icons/12.png" },
+            { name: "Defeat Zulrah with a blowpipe", image: "icons/13.png" },
+            { name: "Complete Inferno in 30 minutes or less", image: "icons/14.png" },
+            { name: "Obtain some valuables from a house in Varlamore", image: "icons/15.png" },
+            { name: "Obtain a rare drop from Barrows, while wearing rare Barrows equipment", image: "icons/16.png" },
+            { name: "Drink a Steamforge brew at Stick Your Ore Inn", image: "icons/17.png" },
+            { name: "Chop Maple Logs", image: "icons/18.png" },
+            { name: "Defeat Scurrius", image: "icons/19.png" },
+            { name: "Kill a Lizard Shaman", image: "icons/20.png" },
+            { name: "Complete the Corruptet Gauntlet", image: "icons/21.png" },
+            { name: "Gain over 30,000 coins from one Alchemy Spell", image: "icons/22.png" },
+            { name: "Steal from a fruit stall", image: "icons/23.png" },
+            { name: "Throw a gnomeball", image: "icons/24.png" },
+            { name: "Complete the gridmaster tutorial", image: "icons/25.png" },
+            { name: "Equip any boots from the Stronghold of Security", image: "icons/26.png" },
+            { name: "Complete Vampyre Slayer", image: "icons/27.png" },
+            { name: "Clean 3 grimy herbs", image: "icons/28.png" },
+            { name: "Obtain a rare drop from Vorkath", image: "icons/29.png" },
+            { name: "Catch a Moth barehanded", image: "icons/30.png" },
+            { name: "Subdue Tempoross", image: "icons/31.png" },
+            { name: "Mine Gold Ore", image: "icons/32.png" },
+            { name: "Witness the Gemstone Crab burrow away", image: "icons/33.png" },
+            { name: "Make a Zamorak brew while wearing Zamorak Monk Robe", image: "icons/34.png" },
+            { name: "Defeat TzTok-Jad", image: "icons/35.png" },
+            { name: "Defeat all 4 Awakened bosses", image: "icons/36.png" },
+            { name: "Defeat Kalphite Queen", image: "icons/37.png" },
+            { name: "Equip a unique item from the God Wars Dungeon", image: "icons/38.png" },
+            { name: "Open Bryopytha's Chest", image: "icons/39.png" },
+            { name: "Check a grown Fruit Tree", image: "icons/40.png" },
+            { name: "Equip an Amulet of Fury", image: "icons/41.png" },
+            { name: "Complete Floor 5 of The Hallowed Sephulchre", image: "icons/42.png" },
+            { name: "Obtain a Rare drop from Tombs of Amascut", image: "icons/43.png" },
+            { name: "Build a Demonic Throne in your POH", image: "icons/44.png" },
+            { name: "Deposit a Skillcape to your POH", image: "icons/45.png" },
+            { name: "Defeat a Lesser Demon in Wizard's Tower", image: "icons/46.png" },
+            { name: "Reach 1500 total level", image: "icons/47.png" },
+            { name: "Obtain a rare drop from Araxxor", image: "icons/48.png" },
+            { name: "Obtain a rare drop from Theatre of Blood", image: "icons/49.png" }
+        ];
+
+        let availableTiles = [];
+        let finishedTiles = new Set();
+        let currentTileIndex = -1;
+        let isRandomizing = false;
+        let runIsValid = true; // NEW: State for run validity
+
+        // ==========================================================
+        // UPDATED: initializeGrid (This is now our Reset function)
+        // ==========================================================
+        function initializeGrid() {
+            gridContainer.innerHTML = ''; 
+            availableTiles = Array.from({ length: totalTiles }, (_, i) => i);
+            finishedTiles.clear();
+            currentTileIndex = -1;
+            isRandomizing = false;
+            runIsValid = true; // Reset validity
+
+            messageDisplay.textContent = 'Click the button to start your first challenge!';
+            invalidRunMessage.textContent = ''; // Clear invalid message
+            
+            randomizeButton.disabled = false;
+            rerollButton.style.display = 'none'; // Hide reroll button
+            rerollButton.disabled = true; // Disable it just in case
+
+            tileData.forEach((data, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.dataset.index = index; 
+
+                const icon = document.createElement('img');
+                icon.src = data.image; 
+                icon.alt = data.name;  
+                
+                gridItem.appendChild(icon); 
+                gridContainer.appendChild(gridItem);
+            });
+        }
+
+        // ==========================================================
+        // NEW: Refactored spin animation
+        // ==========================================================
+        async function performSpinAnimation() {
+            const animationDuration = 3000;
+            const rollCount = 20;
+            const delayBetweenSpins = animationDuration / rollCount;
+            let lastHighlightedTile = null;
+
+            for (let i = 0; i < rollCount; i++) {
+                // Pick a random available tile just for the animation
+                const tempRandomIndex = availableTiles[Math.floor(Math.random() * availableTiles.length)];
+                const tempTileElement = gridContainer.children[tempRandomIndex];
+
+                if (lastHighlightedTile && lastHighlightedTile !== tempTileElement) {
+                    lastHighlightedTile.classList.remove('highlight-spin');
+                }
+                tempTileElement.classList.add('highlight-spin');
+                lastHighlightedTile = tempTileElement;
+
+                await new Promise(resolve => setTimeout(resolve, delayBetweenSpins));
+            }
+            // Return the last tile to remove its highlight
+            return lastHighlightedTile;
+        }
+
+        // ==========================================================
+        // UPDATED: randomizeTile (for the main button)
+        // ==========================================================
+        async function randomizeTile() {
+            if (isRandomizing || availableTiles.length === 0) return;
+
+            isRandomizing = true;
+            randomizeButton.disabled = true;
+            rerollButton.disabled = true; // Disable reroll during spin
+            messageDisplay.textContent = 'Choosing your next challenge...';
+
+            if (currentTileIndex !== -1) {
+                gridContainer.children[currentTileIndex].classList.remove('current');
+            }
+            
+            // Run the animation
+            const lastAnimatedTile = await performSpinAnimation();
+
+            // Final selection
+            let chosenTileGridIndex;
+
+            // NEW: Check if this is the first pick
+            if (availableTiles.length === totalTiles) {
+                chosenTileGridIndex = 24; // Force the center tile (index 24)
+            } else {
+                // Normal random selection for subsequent picks
+                const randomIndexInAvailable = Math.floor(Math.random() * availableTiles.length);
+                chosenTileGridIndex = availableTiles[randomIndexInAvailable];
+            }
+
+            // Find the chosen tile in the available list and remove it
+            const indexInAvailable = availableTiles.indexOf(chosenTileGridIndex);
+            
+            // Note: We assume tile 24 is always available if totalTiles are available
+            currentTileIndex = availableTiles.splice(indexInAvailable, 1)[0]; 
+
+            // Highlight the final tile
+            const finalChosenElement = gridContainer.children[currentTileIndex];
+            if (lastAnimatedTile) {
+                 lastAnimatedTile.classList.remove('highlight-spin');
+            }
+            finalChosenElement.classList.add('current');
+
+            const chosenTileData = tileData[currentTileIndex];
+            messageDisplay.textContent = `Your current challenge is: ${chosenTileData.name}! Click it when finished.`;
+
+            isRandomizing = false;
+            rerollButton.style.display = 'inline-block'; // Show the reroll button
+            rerollButton.disabled = false; // Enable it
+        }
+        
+        // ==========================================================
+        // NEW: rerollTile function
+        // ==========================================================
+        async function rerollTile() {
+            if (isRandomizing || currentTileIndex === -1 || availableTiles.length === 0) return;
+
+            // 1. Set invalid state
+            if (runIsValid) {
+                runIsValid = false;
+                invalidRunMessage.textContent = 'This run is now invalid!';
+            }
+            
+            isRandomizing = true;
+            rerollButton.disabled = true;
+            messageDisplay.textContent = 'Rerolling challenge...';
+
+            // 2. Return current tile to the pool
+            gridContainer.children[currentTileIndex].classList.remove('current');
+            availableTiles.push(currentTileIndex);
+
+            // 3. Run animation
+            const lastAnimatedTile = await performSpinAnimation();
+
+            // 4. Get new tile
+            const randomIndexInAvailable = Math.floor(Math.random() * availableTiles.length);
+            currentTileIndex = availableTiles.splice(randomIndexInAvailable, 1)[0]; // Get new index and remove it
+
+            // 5. Update UI
+            const finalChosenElement = gridContainer.children[currentTileIndex];
+            if (lastAnimatedTile) {
+                 lastAnimatedTile.classList.remove('highlight-spin');
+            }
+            finalChosenElement.classList.add('current');
+
+            const chosenTileData = tileData[currentTileIndex];
+            messageDisplay.textContent = `Your new challenge is: ${chosenTileData.name}! Click it when finished.`;
+
+            isRandomizing = false;
+            rerollButton.disabled = false; // Re-enable reroll
+        }
+
+
+        // ==========================================================
+        // UPDATED: Click listener
+        // ==========================================================
+        gridContainer.addEventListener('click', (event) => {
+            const clickedItem = event.target.closest('.grid-item');
+            if (!clickedItem || isRandomizing) return;
+
+            const clickedIndex = parseInt(clickedItem.dataset.index);
+            const clickedTileData = tileData[clickedIndex];
+
+            if (clickedIndex === currentTileIndex && currentTileIndex !== -1) {
+                // User finished the current challenge
+                clickedItem.classList.remove('current');
+                clickedItem.classList.add('finished');
+                finishedTiles.add(clickedIndex);
+                currentTileIndex = -1;
+
+                // Hide reroll button, enable next challenge button
+                rerollButton.style.display = 'none';
+
+                if (availableTiles.length === 0) {
+                    messageDisplay.textContent = 'Congratulations! All challenges completed!';
+                    randomizeButton.disabled = true;
+                } else {
+                    messageDisplay.textContent = `Challenge "${clickedTileData.name}" completed! Find your next one.`;
+                    randomizeButton.disabled = false;
+                }
+            } else if (finishedTiles.has(clickedIndex)) {
+                messageDisplay.textContent = `"${clickedTileData.name}" is already finished!`;
+            } else if (currentTileIndex !== -1) {
+                const currentTileData = tileData[currentTileIndex];
+                messageDisplay.textContent = `You are currently on "${currentTileData.name}". Finish that one first!`;
+            } else {
+                 messageDisplay.textContent = `Click "Find Next Challenge!" to choose your first tile.`;
+            }
+        });
+
+        // ==========================================================
+        // NEW: Event Listeners for new buttons
+        // ==========================================================
+        randomizeButton.addEventListener('click', randomizeTile);
+        rerollButton.addEventListener('click', rerollTile);
+        resetButton.addEventListener('click', initializeGrid); // initializeGrid IS the reset function
+
+        // Initial setup
+        initializeGrid();
+    </script>
+</body>
+</html>
